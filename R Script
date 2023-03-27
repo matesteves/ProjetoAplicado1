@@ -70,3 +70,29 @@ nike_data_cleaned %>%
   group_by(Name) %>%
   summarise(Reviews = paste(Reviews, collapse = " ")) %>%
   unnest_tokens(word, Reviews)
+  
+# Histograma dos preços dos produtos:
+  
+library(ggplot2)
+
+ggplot(dados, aes(x = preco)) +
+  geom_histogram(binwidth = 25, color = "black", fill = "white") +
+  labs(title = "Distribuição dos preços dos produtos",
+       x = "Preço",
+       y = "Frequência")
+       
+ # Gráfico de dispersão do número de avaliações vs. classificação média:
+ 
+ ggplot(dados, aes(x = numero_avaliacoes, y = classificacao_media)) +
+  geom_point(alpha = 0.2) +
+  labs(title = "Relação entre número de avaliações e classificação média",
+       x = "Número de avaliações",
+       y = "Classificação média")
+       
+ # Gráfico de barras do número de produtos por tamanho:
+ 
+ ggplot(dados, aes(x = tamanho)) +
+  geom_bar(color = "black", fill = "blue") +
+  labs(title = "Número de produtos por tamanho",
+       x = "Tamanho",
+       y = "Número de produtos")
