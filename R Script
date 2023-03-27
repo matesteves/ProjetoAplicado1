@@ -1,0 +1,72 @@
+Código em R utilizado como base para observações:
+
+library(tidyverse)
+library(lubridate)
+
+nike_data <- read.csv("caminho/do/arquivo/nike_data.csv")
+
+# Limpeza e transformação dos dados
+nike_data_cleaned <- nike_data %>%
+  # Selecionar apenas as colunas relevantes
+  select(Name, Price, Rating, Reviews, Release_Date, Size) %>%
+  # Converter a data de lançamento para um formato adequado
+  mutate(Release_Date = ymd(Release_Date))
+
+# Análise exploratória dos dados
+
+
+# Quantidade de vendas dos tênis Air Max e React
+nike_data_cleaned %>%
+  group_by(Name) %>%
+  summarise(Sales = n()) %>%
+  ggplot(aes(x = Name, y = Sales)) +
+  geom_col() +
+  ggtitle("Quantidade de vendas dos tênis Air Max e React")
+
+# Média das avaliações para cada tênis
+nike_data_cleaned %>%
+  group_by(Name) %>%
+  summarise(Average_Rating = mean(Rating)) %>%
+  ggplot(aes(x = Name, y = Average_Rating)) +
+  geom_col() +
+  ggtitle("Média das avaliações para cada tênis")
+
+# Proporção de avaliações por estrelas para cada tênis
+nike_data_cleaned %>%
+  group_by(Name, Rating) %>%
+  summarise(Count = n()) %>%
+  mutate(Proportion = Count / sum(Count)) %>%
+  ggplot(aes(x = Rating, y = Proportion, fill = Name)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("orange", "purple")) +
+  ggtitle("Proporção de avaliações por estrelas para cada tênis")
+
+# Palavras mais comuns nos comentários para cada tênis
+nike_data_cleaned %>%
+  group_by(Name) %>%
+  summarise(Reviews = paste(Reviews, collapse = " ")) %>%
+  unnest_tokens(word, Reviews) %>%
+  anti_join(stop_words) %>%
+  count(word, sort = TRUE) %>%
+  top_n(10) %>%
+  ggplot(aes(x = reorder(word, n), y = n, fill = Name)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~Name, scales = "free") +
+  xlab(NULL) +
+  coord_flip() +
+  ggtitle("Palavras mais comuns nos comentários para cada tênis")
+
+# Propostas analíticas
+# Análise do marketing e publicidade do tênis React
+nike_data_cleaned %>%
+  group_by(Name) %>%
+  summarise(Sales = n()) %>%
+  mutate(Proportion = Sales / sum(Sales)) %>%
+  filter(Name == "React") %>%
+  ifelse(Proportion < 0.2, "A Nike deve investir mais em marketing e publicidade para promover o tênis React e aumentar sua popularidade entre os consumidores.", "O tênis React já é bastante popular e não precisa de mais investimento em marketing e publicidade.")
+
+# Análise dos comentários dos clientes
+nike_data_cleaned %>%
+  group_by(Name) %>%
+  summarise(Reviews = paste(Reviews, collapse = " ")) %>%
+  unnest_tokens(word, Reviews)
