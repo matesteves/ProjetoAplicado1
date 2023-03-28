@@ -3,7 +3,7 @@ Código em R utilizado como base para observações:
 library(tidyverse)
 library(lubridate)
 
-nike_data <- read.csv("caminho/do/arquivo/nike_data.csv")
+nike_data <- read.csv("C:\\Users\\mates\\Desktop\\nike_data.csv")
 
 # Limpeza e transformação dos dados
 nike_data_cleaned <- nike_data %>%
