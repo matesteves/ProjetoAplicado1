@@ -1,0 +1,62 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import re
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from datetime import datetime
+
+#Leitura dos dados
+nike_data = pd.read_csv("C:\Users\mates\Desktop\nike_data.csv")
+
+#Limpeza e transformação dos dados
+nike_data_cleaned = nike_data[['Name', 'Price', 'Rating', 'Reviews', 'Release_Date', 'Size']]
+nike_data_cleaned['Release_Date'] = pd.to_datetime(nike_data_cleaned['Release_Date'])
+
+#Quantidade de vendas dos tênis Air Max e React
+nike_data_cleaned.groupby('Name').size().reset_index(name='Sales').plot(kind='bar', x='Name', y='Sales', title='Quantidade de vendas dos tênis Air Max e React')
+
+#Média das avaliações para cada tênis
+nike_data_cleaned.groupby('Name')['Rating'].mean().reset_index(name='Average_Rating').plot(kind='bar', x='Name', y='Average_Rating', title='Média das avaliações para cada tênis')
+
+#Proporção de avaliações por estrelas para cada tênis
+nike_data_cleaned.groupby(['Name', 'Rating']).size().reset_index(name='Count').groupby('Name').apply(lambda x: x.set_index('Rating')['Count'] / x['Count'].sum()).unstack().plot(kind='bar', stacked=True, title='Proporção de avaliações por estrelas para cada tênis')
+
+#Palavras mais comuns nos comentários para cada tênis
+stop_words = set(stopwords.words('english'))
+nike_data_cleaned.groupby('Name')['Reviews'].apply(lambda x: pd.Series([word for word in word_tokenize(x.str.cat(sep=' ')) if word.lower() not in stop_words]).value_counts().nlargest(10)).reset_index(level=1, drop=True).reset_index(name='Count').pivot(index='word', columns='Name', values='Count').plot(kind='barh', stacked=True, title='Palavras mais comuns nos comentários para cada tênis')
+
+#Propostas analíticas
+#Análise do marketing e publicidade do tênis React
+nike_react_sales = nike_data_cleaned[nike_data_cleaned['Name'] == 'React'].shape[0]
+total_sales = nike_data_cleaned.shape[0]
+if nike_react_sales/total_sales < 0.2:
+print("A Nike deve investir mais em marketing e publicidade para promover o tênis React e aumentar sua popularidade entre os consumidores.")
+else:
+print("O tênis React já é bastante popular e não precisa de mais investimento em marketing e publicidade.")
+
+#Análise dos comentários dos clientes
+nike_data_cleaned.groupby('Name')['Reviews'].apply(lambda x: [word for word in word_tokenize(x.str.cat(sep=' '))]).reset_index(name='Reviews')
+
+#Histograma dos preços dos produtos
+plt.hist(nike_data_cleaned['Price'], bins=25, color='white', edgecolor='black')
+plt.title('Distribuição dos preços dos produtos')
+plt.xlabel('Preço')
+plt.ylabel('Frequência')
+plt.show()
+
+#Gráfico de dispersão do número de avaliações vs. classificação média:
+plt.scatter(dados['numero_avaliacoes'], dados['classificacao_media'], alpha=0.2)
+plt.title("Relação entre número de avaliações e classificação média")
+plt.xlabel("Número de avaliações")
+plt.ylabel("Classificação média")
+plt.show()
+
+#Gráfico de barras do número de produtos por tamanho:
+plt.bar(dados['tamanho'].unique(), dados['tamanho'].value_counts(), color="blue", edgecolor="black")
+plt.title("Número de produtos por tamanho")
+plt.xlabel("Tamanho")
+plt.ylabel("Número de produtos")
+plt.show()
